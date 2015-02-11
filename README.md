@@ -1,4 +1,4 @@
-#Docker builder - dobu
+#Docker builder - Dobu
 
 Dobu is short for **Do**cker **bu**ilder
 
