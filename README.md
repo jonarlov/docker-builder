@@ -4,6 +4,10 @@ Dobu is short for **Do**cker **bu**ilder
 
 Dobu is a small, lightweight application that will build and tag your Docker images recursively from any Docker image in a layered structure.
 
+---
+
+![Screenshot](doc/screenshots/manual-docker-build.png)
+
 All you need to add is a `dobu.yml` beside your Dockerfile that defines the path to the `parent` and `dockertag` value to use when building the image.
 
 `parent` - relative path to the parent Dockerfile folder  
