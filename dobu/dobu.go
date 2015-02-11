@@ -6,7 +6,6 @@ import (
 	"gopkg.in/alecthomas/kingpin.v1"
 	"log"
 	"os"
-	//"strings"
 )
 
 var (
