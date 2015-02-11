@@ -15,11 +15,11 @@ type Config struct {
 	Path      string
 }
 
-func ReadDobuYamlFiles() (*list.List, error) {
+func ReadDobuYamlFiles(path string) (*list.List, error) {
 
 	list := list.New()
 
-	path, _ := filepath.Abs(".")
+	path, _ = filepath.Abs(path)
 	err := recursiveReadFiles(path, list)
 
 	return list, err
@@ -27,13 +27,11 @@ func ReadDobuYamlFiles() (*list.List, error) {
 
 func recursiveReadFiles(path string, l *list.List) error {
 
-	//return errors.New("PIO")
 	dobuContent, err := readFile(path + "/dobu.yml")
 	if err != nil {
 		return fmt.Errorf("No dobu.yml in %s...", path)
 	}
 
-	// //TODO: Check for Dockerfile
 	if _, err := os.Stat(path + "/Dockerfile"); err != nil {
 		return fmt.Errorf("No Dockerfile in %s...", path)
 	}

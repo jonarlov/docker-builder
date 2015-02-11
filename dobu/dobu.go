@@ -6,6 +6,7 @@ import (
 	"gopkg.in/alecthomas/kingpin.v1"
 	"log"
 	"os"
+	//"strings"
 )
 
 var (
@@ -19,16 +20,16 @@ func main() {
 
 	switch kingpin.MustParse(app.Parse(os.Args[1:])) {
 	case "list":
-		list()
+		list(*wdFlag)
 	case "build":
-		build()
+		build(*wdFlag)
 	}
 }
 
-func list() {
+func list(path string) {
 	fmt.Println("These images will be built:")
 
-	list, err := lib.ReadDobuYamlFiles()
+	list, err := lib.ReadDobuYamlFiles(path)
 
 	if err != nil {
 		log.Fatalf("ERROR: %s", err.Error())
@@ -36,13 +37,12 @@ func list() {
 	}
 
 	lib.ForEach(list, lib.PrintImageList)
-
 }
 
-func build() {
+func build(path string) {
 	fmt.Println("Inside build")
 
-	list, err := lib.ReadDobuYamlFiles()
+	list, err := lib.ReadDobuYamlFiles(path)
 
 	if err != nil {
 		log.Fatalf("ERROR: %s", err.Error())

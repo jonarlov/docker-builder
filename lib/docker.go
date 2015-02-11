@@ -25,5 +25,6 @@ func BuildImage(c Config) {
 }
 
 func PrintImageList(c Config) {
+
 	fmt.Printf("Image: %s @ %s\n", c.Dockertag, c.Path)
 }
