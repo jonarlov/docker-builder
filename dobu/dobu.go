@@ -19,20 +19,24 @@ var (
 
 func main() {
 
-	switch kingpin.MustParse(app.Parse(os.Args[1:])) {
+	p := kingpin.MustParse(app.Parse(os.Args[1:]))
+
+	cmd := lib.Cmd{Path: *wdFlag, Filename: *filenameFlag}
+
+	switch p {
 	case "list":
-		list(*wdFlag, *filenameFlag)
+		list(cmd)
 	case "build":
-		build(*wdFlag, *filenameFlag)
+		build(cmd)
 	default:
 		usage()
 	}
 }
 
-func list(path string, filename string) {
+func list(cmd lib.Cmd) {
 	fmt.Println("These images will be built:")
 
-	list, err := lib.ReadDobuYamlFiles(path, filename)
+	list, err := lib.ReadDobuYamlFiles(cmd)
 
 	if err != nil {
 		log.Fatalf("ERROR: %s", err.Error())
@@ -42,10 +46,10 @@ func list(path string, filename string) {
 	lib.ForEach(list, lib.PrintImageList)
 }
 
-func build(path string, filename string) {
+func build(cmd lib.Cmd) {
 	fmt.Println("Inside build")
 
-	list, err := lib.ReadDobuYamlFiles(path, filename)
+	list, err := lib.ReadDobuYamlFiles(cmd)
 
 	if err != nil {
 		log.Fatalf("ERROR: %s", err.Error())
