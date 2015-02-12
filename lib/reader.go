@@ -10,13 +10,6 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-// Config holding values from the yaml files
-type Config struct {
-	Parent    string
-	Dockertag string
-	Path      string
-}
-
 // ReadDobuYamlFiles reads all yaml files recursively and parse them into our Config struct
 func ReadDobuYamlFiles(path string, filename string) (*list.List, error) {
 
