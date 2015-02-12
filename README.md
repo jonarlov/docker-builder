@@ -26,3 +26,31 @@ dockertag: orby/app1-tomcat:8.0.18
 ```
 
 Now you can automate your Docker images build procedure, and the best part is that you can start building from the bottom of the chain. Quite the opposite way of what you can do today.
+
+---
+## Command line options
+```
+$> dobu
+usage: dobu [<flags>] <command>
+
+Dobu is a recursive Docker image builder.
+
+Flags:
+  --help     Show help.
+  --version  Show application version.
+  -w, --working-directory="."  
+             Change working directory
+  -f, --file="dobu.yml"  
+             Alternate dobu.yml filename
+
+Commands:
+  help [<command>]
+    Show help for a command.
+
+  list
+    List docker images that would be build
+
+  build
+    Build docker images recursivly
+
+```
