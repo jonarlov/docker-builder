@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	app          = kingpin.New("dobu", "A Docker image builder.").Version("0.1.1")
+	app          = kingpin.New("dobu", "Dobu is a recursive Docker image builder.").Version("0.1.1")
 	listCommand  = app.Command("list", "List docker images that would be build")
 	buildCommand = app.Command("build", "Build docker images recursivly")
 	wdFlag       = app.Flag("working-directory", "Change working directory").Default(".").Short('w').String()
