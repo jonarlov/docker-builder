@@ -14,9 +14,9 @@ $> cd ~/src/docker/app1/tomcat-8.0.18
 $> dobu build
 ```
 
-*This will build all parent images and the app1-tomcat:8.0.18 image for you*
+*This will build all parent images and the orby/app1-tomcat:8.0.18 image for you*
 
-All you need for starting using Dobu, is to add a `dobu.yml` beside your Dockerfiles that defines the path to the `parent` and `dockertag` value to use when building the image.
+All you need, to start using Dobu, is to add a `dobu.yml` beside your Dockerfiles that defines the path to the `parent` and `dockertag` value to use when building the image.
 
 ```yaml
 // relative path to the parent Dockerfile folder

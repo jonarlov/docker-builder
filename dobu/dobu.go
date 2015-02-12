@@ -10,11 +10,11 @@ import (
 )
 
 var (
-	app          = kingpin.New("dobu", "A Docker image builder.")
+	app          = kingpin.New("dobu", "A Docker image builder.").Version("0.1.1")
 	listCommand  = app.Command("list", "List docker images that would be build")
 	buildCommand = app.Command("build", "Build docker images recursivly")
 	wdFlag       = app.Flag("working-directory", "Change working directory").Default(".").Short('w').String()
-	filenameFlag = app.Flag("file", "Alternate doby.yml filename").Default("doby.yml").Short('f').String()
+	filenameFlag = app.Flag("file", "Alternate dobu.yml filename").Default("dobu.yml").Short('f').String()
 )
 
 func main() {
@@ -24,6 +24,8 @@ func main() {
 		list(*wdFlag, *filenameFlag)
 	case "build":
 		build(*wdFlag, *filenameFlag)
+	default:
+		usage()
 	}
 }
 
@@ -51,4 +53,9 @@ func build(path string, filename string) {
 	}
 
 	lib.ForEach(list, lib.BuildImage)
+}
+
+func usage() {
+
+	app.Usage(os.Stdout)
 }
