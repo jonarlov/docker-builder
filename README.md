@@ -19,9 +19,10 @@ $> dobu build
 All you need, to start using Dobu, is to add a `dobu.yml` beside your Dockerfiles that defines the path to the `parent` and `dockertag` value to use when building the image.
 
 ```yaml
-// relative path to the parent Dockerfile folder
+---
+# relative path to the parent Dockerfile folder
 parent: ../
-// the tag to use when executing "docker build -t dockertag path"
+# the tag to use when executing "docker build -t dockertag path"
 dockertag: orby/app1-tomcat:8.0.18
 ```
 
