@@ -3,33 +3,36 @@ package lib
 import (
 	"container/list"
 	"fmt"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+
+	"gopkg.in/yaml.v2"
 )
 
+// Config holding values from the yaml files
 type Config struct {
 	Parent    string
 	Dockertag string
 	Path      string
 }
 
-func ReadDobuYamlFiles(path string) (*list.List, error) {
+// ReadDobuYamlFiles reads all yaml files recursively and parse them into our Config struct
+func ReadDobuYamlFiles(path string, filename string) (*list.List, error) {
 
 	list := list.New()
 
 	path, _ = filepath.Abs(path)
-	err := recursiveReadFiles(path, list)
+	err := recursiveReadFiles(path, filename, list)
 
 	return list, err
 }
 
-func recursiveReadFiles(path string, l *list.List) error {
+func recursiveReadFiles(path string, filename string, l *list.List) error {
 
-	dobuContent, err := readFile(path + "/dobu.yml")
+	dobuContent, err := readFile(path + "/" + filename)
 	if err != nil {
-		return fmt.Errorf("No dobu.yml in %s...", path)
+		return fmt.Errorf("No %s in %s...", filename, path)
 	}
 
 	if _, err := os.Stat(path + "/Dockerfile"); err != nil {
@@ -39,17 +42,17 @@ func recursiveReadFiles(path string, l *list.List) error {
 	var conf Config
 	unmarshal(dobuContent, &conf)
 
-	abs, err := filepath.Abs(path)
+	abs, _ := filepath.Abs(path)
 	conf.Path = abs
 
 	if conf.Dockertag == "" {
-		return fmt.Errorf("dockertag is required in %s/dobu.yml", conf.Path)
+		return fmt.Errorf("dockertag is required in %s/%s", conf.Path, filename)
 	}
 
 	l.PushFront(conf)
 
 	if conf.Parent != "" {
-		return recursiveReadFiles(path+"/"+conf.Parent, l)
+		return recursiveReadFiles(path+"/"+conf.Parent, filename, l)
 	}
 
 	return nil

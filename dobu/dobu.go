@@ -2,33 +2,35 @@ package main
 
 import (
 	"fmt"
-	"github.com/orby/dobu/lib"
-	"gopkg.in/alecthomas/kingpin.v1"
 	"log"
 	"os"
+
+	"github.com/orby/docker-builder/lib"
+	"gopkg.in/alecthomas/kingpin.v1"
 )
 
 var (
 	app          = kingpin.New("dobu", "A Docker image builder.")
 	listCommand  = app.Command("list", "List docker images that would be build")
 	buildCommand = app.Command("build", "Build docker images recursivly")
-	wdFlag       = app.Flag("working-directory", "If you want to change working directory").Default(".").Short('w').String()
+	wdFlag       = app.Flag("working-directory", "Change working directory").Default(".").Short('w').String()
+	filenameFlag = app.Flag("file", "Alternate doby.yml filename").Default("doby.yml").Short('f').String()
 )
 
 func main() {
 
 	switch kingpin.MustParse(app.Parse(os.Args[1:])) {
 	case "list":
-		list(*wdFlag)
+		list(*wdFlag, *filenameFlag)
 	case "build":
-		build(*wdFlag)
+		build(*wdFlag, *filenameFlag)
 	}
 }
 
-func list(path string) {
+func list(path string, filename string) {
 	fmt.Println("These images will be built:")
 
-	list, err := lib.ReadDobuYamlFiles(path)
+	list, err := lib.ReadDobuYamlFiles(path, filename)
 
 	if err != nil {
 		log.Fatalf("ERROR: %s", err.Error())
@@ -38,10 +40,10 @@ func list(path string) {
 	lib.ForEach(list, lib.PrintImageList)
 }
 
-func build(path string) {
+func build(path string, filename string) {
 	fmt.Println("Inside build")
 
-	list, err := lib.ReadDobuYamlFiles(path)
+	list, err := lib.ReadDobuYamlFiles(path, filename)
 
 	if err != nil {
 		log.Fatalf("ERROR: %s", err.Error())
