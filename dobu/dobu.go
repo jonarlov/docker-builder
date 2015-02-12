@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	app          = kingpin.New("dobu", "Dobu is a recursive Docker image builder.").Version("0.1.1")
+	app          = kingpin.New("dobu", "Dobu is a recursive Docker image builder.").Version("0.2.1")
 	listCommand  = app.Command("list", "List docker images that would be build")
 	buildCommand = app.Command("build", "Build docker images recursivly")
 	wdFlag       = app.Flag("working-directory", "Change working directory").Default(".").Short('w').String()
@@ -47,7 +47,7 @@ func list(cmd lib.Cmd) {
 }
 
 func build(cmd lib.Cmd) {
-	fmt.Println("Inside build")
+	fmt.Println("Building:")
 
 	list, err := lib.ReadDobuYamlFiles(cmd)
 
@@ -57,9 +57,12 @@ func build(cmd lib.Cmd) {
 	}
 
 	lib.ForEach(list, lib.BuildImage)
+
+	fmt.Println("Done building you Docker images")
 }
 
 func usage() {
 
+	fmt.Println("ERROR: No command specified ...")
 	app.Usage(os.Stdout)
 }

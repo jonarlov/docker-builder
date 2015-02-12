@@ -3,7 +3,9 @@ package lib
 import (
 	"container/list"
 	"fmt"
-	//"os/exec"
+	"log"
+	"os"
+	"os/exec"
 )
 
 type consumer func(Config)
@@ -20,10 +22,23 @@ func ForEach(l *list.List, fn consumer) {
 // BuildImage builds the image described by the Config struct
 func BuildImage(c Config) {
 
-	fmt.Printf("Building Docker image located in %s\n", c.Path)
+	fmt.Printf("%s in %s\n", c.Dockertag, c.Path)
 
 	println("docker build -t " + c.Dockertag + " " + c.Path)
 
+	cmd := exec.Command("docker", "build", "-t", c.Dockertag, c.Path)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Start(); err != nil {
+		log.Fatal(err)
+		os.Exit(1)
+	}
+
+	if err := cmd.Wait(); err != nil {
+		log.Fatal(err)
+		os.Exit(1)
+	}
 }
 
 // PrintImageList prints the content of the Config struct given as argument
