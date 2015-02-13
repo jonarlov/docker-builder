@@ -32,7 +32,7 @@ Now you can automate your Docker images build procedure, and the best part is th
 ## Command line options
 ```
 $> dobu
-usage: dobu [<flags>] <command>
+usage: dobu [<flags>] <command> [<flags>] [<args> ...]
 
 Dobu is a recursive Docker image builder.
 
@@ -49,9 +49,40 @@ Commands:
     Show help for a command.
 
   list
-    List docker images that would be build
+    List images in the build chain
 
   build
-    Build docker images recursivly
+    Build images in the build chain recursivly
 
+  stop [<flags>]
+    Stop all running containers by sending SIGTERM and then SIGKILL after a grace period
 ```
+
+##Build instructions
+
+Fork Dobu from GitHub  
+https://github.com/orby/docker-builder/fork
+
+Clone Dobu from GitHub
+```
+cd $GOPATH/src/github.com/username/
+git clone git@github.com:username/docker-builder.git
+```
+
+Execute Dobu from source
+```
+go run $GOPATH/src/github.com/username/docker-builder/dobu/dobu.go
+```
+
+Install binary
+```
+go install github.com/username/docker-builder/dobu
+```
+
+Delete binary
+```
+go clean -i github.com/username/docker-builder/dobu
+```
+
+Add/fix/test/refactor code and create a pull request:  
+https://help.github.com/articles/using-pull-requests/

@@ -3,46 +3,38 @@ package lib
 import (
 	"container/list"
 	"fmt"
-	"log"
-	"os"
-	"os/exec"
 )
 
-type consumer func(Config)
+type consumer func(Config) (err error)
 
 // ForEach iterates a list of Config structs, executing the function sent as argument on each struct
-func ForEach(l *list.List, fn consumer) {
+func ForEach(l *list.List, consumer consumer) (err error) {
 
 	for e := l.Front(); e != nil; e = e.Next() {
 
-		fn(e.Value.(Config))
+		err = consumer(e.Value.(Config))
+
+		if err != nil {
+			return err
+		}
 	}
+
+	return
 }
 
 // BuildImage builds the image described by the Config struct
-func BuildImage(c Config) {
+func BuildImage(c Config) (err error) {
 
 	fmt.Printf("%s in %s\n", c.Dockertag, c.Path)
 
 	println("docker build -t " + c.Dockertag + " " + c.Path)
 
-	cmd := exec.Command("docker", "build", "-t", c.Dockertag, c.Path)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	if err := cmd.Start(); err != nil {
-		log.Fatal(err)
-		os.Exit(1)
-	}
-
-	if err := cmd.Wait(); err != nil {
-		log.Fatal(err)
-		os.Exit(1)
-	}
+	return ExecCommand("docker", "build", "-t", c.Dockertag, c.Path)
 }
 
 // PrintImageList prints the content of the Config struct given as argument
-func PrintImageList(c Config) {
+func PrintImageList(c Config) (err error) {
 
-	fmt.Printf("Image: %s @ %s\n", c.Dockertag, c.Path)
+	_, err = fmt.Printf("Image: %s @ %s\n", c.Dockertag, c.Path)
+	return
 }
