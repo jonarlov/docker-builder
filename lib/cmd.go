@@ -4,4 +4,5 @@ package lib
 type Cmd struct {
 	Path     string
 	Filename string
+	Command string
 }

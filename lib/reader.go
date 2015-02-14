@@ -11,25 +11,27 @@ import (
 )
 
 // ReadDobuYamlFiles reads all yaml files recursively and parse them into our Config struct
-func ReadDobuYamlFiles(cmd Cmd) (*list.List, error) {
+func ReadDobuYamlFiles(cmd Cmd) (*list.List) {
 
 	list := list.New()
 
 	path, _ := filepath.Abs(cmd.Path)
-	err := recursiveReadFiles(path, cmd, list)
+	recursiveReadFiles(path, cmd, list)
 
-	return list, err
+	return list
 }
 
-func recursiveReadFiles(path string, cmd Cmd, l *list.List) error {
+func recursiveReadFiles(path string, cmd Cmd, l *list.List) {
 
 	dobuContent, err := readFile(path + "/" + cmd.Filename)
 	if err != nil {
-		return fmt.Errorf("No %s in %s...", cmd.Filename, path)
+		fmt.Printf("No %s in %s. See \"dobu help %s\" -f to use another filename...\n", cmd.Filename, path, cmd.Command)
+		os.Exit(1)
 	}
 
 	if _, err := os.Stat(path + "/Dockerfile"); err != nil {
-		return fmt.Errorf("No Dockerfile in %s...", path)
+		fmt.Printf("No Dockerfile in %s...\n", path)
+		os.Exit(1)
 	}
 
 	var conf Config
@@ -39,16 +41,15 @@ func recursiveReadFiles(path string, cmd Cmd, l *list.List) error {
 	conf.Path = abs
 
 	if conf.Dockertag == "" {
-		return fmt.Errorf("dockertag is required in %s/%s", conf.Path, cmd.Filename)
+		fmt.Printf("dockertag is required in %s/%s\n", conf.Path, cmd.Filename)
+		os.Exit(1)
 	}
 
 	l.PushFront(conf)
 
 	if conf.Parent != "" {
-		return recursiveReadFiles(path+"/"+conf.Parent, cmd, l)
+		recursiveReadFiles(path+"/"+conf.Parent, cmd, l)
 	}
-
-	return nil
 }
 
 func readFile(s string) ([]byte, error) {
