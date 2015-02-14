@@ -36,7 +36,7 @@ test
 └── base-images
     ├── debian-wheezy
     │   ├── Dockerfile
-    │   ├── apache-2-4
+    │   ├── apache-2.4
     │   │   └── Dockerfile
     │   ├── apache-2.2
     │   │   ├── Dockerfile
