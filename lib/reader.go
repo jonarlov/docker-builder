@@ -25,7 +25,7 @@ func recursiveReadFiles(path string, cmd Cmd, l *list.List) {
 
 	dobuContent, err := readFile(path + "/" + cmd.Filename)
 	if err != nil {
-		fmt.Printf("No %s in %s. See \"dobu help %s\" -f to use another filename...\n", cmd.Filename, path, cmd.Command)
+		fmt.Printf("No %s in %s. See \"dobu help %s\" for using -f to specify another filename...\n", cmd.Filename, path, cmd.Command)
 		os.Exit(1)
 	}
 

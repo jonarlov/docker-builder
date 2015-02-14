@@ -9,7 +9,9 @@ import (
 
 // ExecCommand executes the given command which uses os.Stdout and os.Stderr
 // Returns any error object
-func ExecCommand(command string, args ...string) {
+func ExecCommand(command string, args []string) {
+
+	fmt.Printf("%s %s\n", command, strings.Join(args, " "))
 
 	cmd := exec.Command(command, args...)
 	cmd.Stdout = os.Stdout
@@ -23,10 +25,11 @@ func ExecCommand(command string, args ...string) {
 }
 
 // ExecOutput executes the given command and return the output
-func ExecOutput(name string, args ...string) (out []byte) {
+func ExecOutput(command string, args []string) (out []byte) {
 
-	out, err := exec.Command(name, args...).CombinedOutput()
+	fmt.Printf("%s %s\n", command, strings.Join(args, " "))
 
+	out, err := exec.Command(command, args...).CombinedOutput()
 	exitIfError(string(out), err)
 
 	return

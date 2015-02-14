@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"strings"
 
 	"github.com/orby/docker-builder/lib"
 	"gopkg.in/alecthomas/kingpin.v1"
@@ -14,76 +13,89 @@ var (
 	app = kingpin.New("dobu", "Dobu is a recursive Docker image builder.").Version("0.2.1")
 
 	// dobu list
-	listCommand      = app.Command("list", "List images in the build chain")
+	listCommand      = kingpin.Command("list", "List images in the build chain")
 	listFilenameFlag = listCommand.Flag("file", "Alternate dobu.yml filename").Default("dobu.yml").Short('f').String()
 	listWdFlag       = listCommand.Flag("working-directory", "Change working directory").Default(".").Short('w').String()
 
 	// dobu build
-	buildCommand      = app.Command("build", "Build images in the build chain recursivly")
+	buildCommand      = kingpin.Command("build", "Build images in the build chain recursivly")
 	buildFilenameFlag = buildCommand.Flag("file", "Alternate dobu.yml filename").Default("dobu.yml").Short('f').String()
 	buildWdFlag       = buildCommand.Flag("working-directory", "Change working directory").Default(".").Short('w').String()
 
 	// dobu stop
-	stopCommand  = app.Command("stop", "Stop all running Docker containers by sending SIGTERM and then SIGKILL after a grace period")
+	stopCommand  = kingpin.Command("stop", "Stop all running Docker containers by sending SIGTERM and then SIGKILL after a grace period")
 	stopTimeFlag = stopCommand.Flag("time", "Number of seconds to wait for the container to stop before killing it. Default is 10 seconds").Default("10").Short('t').String()
+
+	// dobu rm
+	deleteCommand   = kingpin.Command("delete", "Delete all containers, or all images or both containers and images")
+	containerDelete = deleteCommand.Command("containers", "Delete all Docker containers")
+	imageDelete     = deleteCommand.Command("images", "Delete all Docker images")
+	allDelete       = deleteCommand.Command("all", "Delete all Docker containers and Docker images")
 )
 
 func main() {
 
-	command := kingpin.MustParse(app.Parse(os.Args[1:]))
+	//command := kingpin.MustParse(app.Parse(os.Args[1:]))
 
-	switch command {
+	//switch command {
+	switch kingpin.Parse() {
+
 	case "list":
-		list(lib.Cmd{Path: *listWdFlag, Filename: *listFilenameFlag, Command: command})
+		doList(lib.Cmd{Path: *listWdFlag, Filename: *listFilenameFlag, Command: "list"})
+
 	case "build":
-		build(lib.Cmd{Path: *buildWdFlag, Filename: *buildFilenameFlag, Command: command})
+		doBuild(lib.Cmd{Path: *buildWdFlag, Filename: *buildFilenameFlag, Command: "build"})
+
 	case "stop":
-		stop(*stopTimeFlag)
+		doStop(*stopTimeFlag)
+
+	case "delete containers":
+		doDelete("containers")
+
+	case "delete images":
+		doDelete("images")
+
+	case "delete all":
+		doDelete("all")
+
 	default:
 		usage()
 	}
 }
 
-func list(cmd lib.Cmd) {
+func doList(cmd lib.Cmd) {
 
-	list := lib.ReadDobuYamlFiles(cmd)
-
-	if list.Len() > 0 {
-		fmt.Println("These images will be built:")
-		lib.ForEach(list, lib.PrintImageList)
-	}
+	lib.DockerList(cmd)
 }
 
-func build(cmd lib.Cmd) {
+func doBuild(cmd lib.Cmd) {
 
-	list := lib.ReadDobuYamlFiles(cmd)
-
-	if list.Len() > 0 {
-		fmt.Println("Building:")
-
-		lib.ForEach(list, lib.BuildImage)
-
-		fmt.Println("Done building you Docker images")
-	}
+	lib.DockerBuild(cmd)
 }
 
-func stop(time string) {
+func doStop(time string) {
 
-	fmt.Printf("docker stop -t %s $(docker ps -a -q)\n", time)
+	lib.DockerStop(time)
+}
 
-	// get hash of all running containers
-	out := lib.ExecOutput("docker", "ps", "-a", "-q")
+func doDelete(arg string) {
 
-	// split docker hash output on newline
-	hash := strings.Split(string(out), "\n")
+	switch arg {
 
-	// docker arguments array
-	args := []string{"stop", "-t", time}
+	case "containers":
+		lib.DockerDeleteContainers()
+	case "images":
+		lib.DockerDeleteImages()
+	case "all":
+		lib.DockerDeleteContainers()
+		lib.DockerDeleteImages()
+	case "":
+		fmt.Println("You need to specify either \"delete containers\", \"delete images\" or \"delete all\" when calling delete. See \"dobu help delete\" for more information")
+	default:
+		fmt.Printf("Unknown delete directive: %s\n", arg)
 
-	// append hash to docker arguments
-	cmd := append(args, hash...)
+	}
 
-	lib.ExecCommand("docker", cmd...)
 }
 
 func usage() {
