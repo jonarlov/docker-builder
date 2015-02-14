@@ -59,19 +59,19 @@ func DockerBuild(cmd Cmd) {
 // DockerStop stops all running Docker containers
 func DockerStop(time string) {
 
-		// get all docker container hashes
-		hash := dockerPs()
+	// get all docker container hashes
+	hash := dockerPs()
 
-		if len(hash) > 0 {
+	if len(hash) > 0 {
 
-			// add hashes to docker arguments
-			args := append([]string{"stop", "-t", time}, hash...)
+		// add hashes to docker arguments
+		args := append([]string{"stop", "-t", time}, hash...)
 
-			// use ExecOuput to silence docker
-			ExecOutput("docker", args)
-		} else {
-			fmt.Println("No Docker containers to stop")
-		}
+		// use ExecOuput to silence docker
+		ExecOutput("docker", args)
+	} else {
+		fmt.Println("No Docker containers to stop")
+	}
 }
 
 //DockerDeleteContainers deletes all Docker containers
@@ -82,10 +82,10 @@ func DockerDeleteContainers() {
 
 	if len(hash) > 0 {
 
-			// add hashes to docker arguments
-			args := append([]string{"rm", "-f"}, hash...)
+		// add hashes to docker arguments
+		args := append([]string{"rm", "-f"}, hash...)
 
-			ExecCommand("docker", args)
+		ExecCommand("docker", args)
 	} else {
 		fmt.Println("No Docker containers to delete")
 	}
@@ -105,7 +105,6 @@ func DockerDeleteImages() {
 	} else {
 		fmt.Println("No Docker images to delete")
 	}
-
 
 }
 

@@ -1,0 +1,3 @@
+---
+parent: ../
+dockertag: company/apache:2.2

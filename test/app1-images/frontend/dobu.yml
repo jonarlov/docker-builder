@@ -1,0 +1,3 @@
+---
+parent: ../../base-images/debian-wheezy/apache-2.2/php-5/wordpress-latest
+dockertag: app1/frontend:latest

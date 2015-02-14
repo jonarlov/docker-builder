@@ -1,0 +1,4 @@
+---
+# no more parent Docker images, since FROM in this Dockerfile is found in the Docker central repository
+parent:
+dockertag: company/debian:7
