@@ -6,58 +6,50 @@ import (
 	"strings"
 )
 
-type consumer func(Config)
-
-// ForEach iterates a list of Config structs, executing the function sent as argument on each struct
-func ForEach(l *list.List, consumer consumer) {
-
-	for e := l.Front(); e != nil; e = e.Next() {
-
-		consumer(e.Value.(Config))
-	}
-}
-
-// BuildImage builds the image described by the Config struct
-func BuildImage(c Config) {
-
-	fmt.Printf("%s in %s\n", c.Dockertag, c.Path)
-
-	ExecCommand("docker", []string{"build", "-t", c.Dockertag, c.Path})
-}
-
-// PrintImageList prints the content of the Config struct given as argument
-func PrintImageList(c Config) {
-
-	fmt.Printf("Image: %s @ %s\n", c.Dockertag, c.Path)
-}
-
 // DockerList will list all images in the build chain
-func DockerList(cmd Cmd) {
+func DockerList(cmd Cmd) (out string) {
 
-	list := ReadDobuYamlFiles(cmd)
-
-	if list.Len() > 0 {
-		fmt.Println("These images will be built:")
-		ForEach(list, PrintImageList)
+	// no way to set default values for struct fields, so here we go... This is mainly set to satisfy the tests where we have to call the methods in dobu directly and therefor not using kingpin
+	if cmd.Command == "" {
+		cmd.Command = "list"
 	}
+
+	if cmd.Filename == "" {
+		cmd.Filename = "dobu.yml"
+	}
+
+	list, out := ReadDobuYamlFiles(cmd)
+
+	fmt.Errorf("%s", list)
+
+
+	if list != nil && list.Len() > 0 {
+		out = "These images will be built:\n"
+		fmt.Print(out)
+		out += forEach(list, printImageList)
+	}
+
+	return
 }
 
 // DockerBuild will build all images in the build chain recursively
-func DockerBuild(cmd Cmd) {
+func DockerBuild(cmd Cmd) (out string) {
 
-	list := ReadDobuYamlFiles(cmd)
+	list, out := ReadDobuYamlFiles(cmd)
 
-	if list.Len() > 0 {
-		fmt.Println("Building:")
+	if list != nil && list.Len() > 0 {
 
-		ForEach(list, BuildImage)
+		out += forEach(list, buildImage)
 
-		fmt.Println("Done building you Docker images")
+		out += "Done building you Docker images\n"
+		fmt.Print(out)
 	}
+
+	return
 }
 
 // DockerStop stops all running Docker containers
-func DockerStop(time string) {
+func DockerStop(time string) (out string) {
 
 	// get all docker container hashes
 	hash := dockerPs()
@@ -68,14 +60,18 @@ func DockerStop(time string) {
 		args := append([]string{"stop", "-t", time}, hash...)
 
 		// use ExecOuput to silence docker
-		ExecOutput("docker", args)
+		result := ExecOutput("docker", args)
+		out = result.Out()
 	} else {
-		fmt.Println("No Docker containers to stop")
+		out = "No Docker containers to stop\n"
+		fmt.Print(out)
 	}
+
+	return
 }
 
 //DockerDeleteContainers deletes all Docker containers
-func DockerDeleteContainers() {
+func DockerDeleteContainers() (out string) {
 
 	// get all docker container hashes
 	hash := dockerPs()
@@ -85,15 +81,18 @@ func DockerDeleteContainers() {
 		// add hashes to docker arguments
 		args := append([]string{"rm", "-f"}, hash...)
 
-		ExecCommand("docker", args)
+		result := ExecCommand("docker", args)
+		out = result.Out()
 	} else {
-		fmt.Println("No Docker containers to delete")
+		out = "No Docker containers to delete\n"
+		fmt.Print(out)
 	}
 
+	return
 }
 
 //DockerDeleteImages deletes all Docker images
-func DockerDeleteImages() {
+func DockerDeleteImages() (out string) {
 
 	hash := dockerImages()
 
@@ -101,23 +100,27 @@ func DockerDeleteImages() {
 		// append hashes to docker arguments
 		args := append([]string{"rmi", "-f"}, hash...)
 
-		ExecCommand("docker", args)
+		result := ExecCommand("docker", args)
+		out = result.Out()
 	} else {
-		fmt.Println("No Docker images to delete")
+		out = "No Docker images to delete\n"
+		fmt.Print(out)
 	}
 
+	return
 }
 
 // dockerPs returns an array of hashes for all containers
 func dockerPs() (hash []string) {
 
 	// get hash of all running containers
-	out := ExecOutput("docker", []string{"ps", "-a", "-q"})
+	result := ExecOutput("docker", []string{"ps", "-a", "-q"})
+	result.ErrorHandling()
 
-	if len(out) > 0 {
+	if len(result.stdout) > 0 {
 
 		// split docker hash output on newline
-		hash = strings.Split(string(out), "\n")
+		hash = strings.Split(string(result.stdout), "\n")
 	}
 
 	return hash
@@ -127,13 +130,49 @@ func dockerPs() (hash []string) {
 func dockerImages() (hash []string) {
 
 	// get hash of all running containers
-	out := ExecOutput("docker", []string{"images", "-q"})
+	result := ExecOutput("docker", []string{"images", "-q"})
+	result.ErrorHandling()
 
-	if len(out) > 0 {
+	if len(result.stdout) > 0 {
 
 		// split docker hash output on newline
-		hash = strings.Split(string(out), "\n")
+		hash = strings.Split(string(result.stdout), "\n")
 	}
 
 	return hash
+}
+
+type consumer func(Config) (out string)
+
+// forEach iterates a list of Config structs, executing the function sent as argument on each struct
+func forEach(l *list.List, consumer consumer) (out string) {
+
+	for e := l.Front(); e != nil; e = e.Next() {
+
+		out += consumer(e.Value.(Config))
+	}
+
+	return
+}
+
+// buildImage builds the image described by the Config struct
+func buildImage(c Config) (out string) {
+
+	out = fmt.Sprintf("Building %s in %s\n", c.Dockertag, c.Path)
+	fmt.Print(out)
+
+	result := ExecCommand("docker", []string{"build", "-t", c.Dockertag, c.Path})
+
+	out += result.Out()
+
+	return
+}
+
+// printImageList prints the content of the Config struct given as argument
+func printImageList(c Config) (out string) {
+
+	out = fmt.Sprintf("Image: %s @ %s\n", c.Dockertag, c.Path)
+	fmt.Print(out)
+
+	return
 }

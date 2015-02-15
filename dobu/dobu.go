@@ -35,9 +35,6 @@ var (
 
 func main() {
 
-	//command := kingpin.MustParse(app.Parse(os.Args[1:]))
-
-	//switch command {
 	switch kingpin.Parse() {
 
 	case "list":
@@ -63,42 +60,44 @@ func main() {
 	}
 }
 
-func doList(cmd lib.Cmd) {
+func doList(cmd lib.Cmd) (out string) {
 
-	lib.DockerList(cmd)
+	return lib.DockerList(cmd)
 }
 
-func doBuild(cmd lib.Cmd) {
+func doBuild(cmd lib.Cmd) (out string) {
 
-	lib.DockerBuild(cmd)
+	return lib.DockerBuild(cmd)
 }
 
-func doStop(time string) {
+func doStop(time string) (out string) {
 
-	lib.DockerStop(time)
+	return lib.DockerStop(time)
 }
 
-func doDelete(arg string) {
+func doDelete(arg string) (out string) {
 
 	switch arg {
 
 	case "containers":
-		lib.DockerDeleteContainers()
+		out = lib.DockerDeleteContainers()
 	case "images":
-		lib.DockerDeleteImages()
+		out = lib.DockerDeleteImages()
 	case "all":
-		lib.DockerDeleteContainers()
-		lib.DockerDeleteImages()
+		out1 := lib.DockerDeleteContainers()
+		out2 := lib.DockerDeleteImages()
+		out = out1 + "\n" + out2
 	case "":
-		fmt.Println("You need to specify either \"delete containers\", \"delete images\" or \"delete all\" when calling delete. See \"dobu help delete\" for more information")
+		out = "You need to specify either \"delete containers\", \"delete images\" or \"delete all\" when calling delete. See \"dobu help delete\" for more information"
+		fmt.Println(out)
 	default:
-		fmt.Printf("Unknown delete directive: %s\n", arg)
-
+		out := "Unknown delete directive: " + arg
+		fmt.Println(out)
 	}
 
+	return
 }
 
 func usage() {
-
 	app.Usage(os.Stdout)
 }

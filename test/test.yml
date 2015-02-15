@@ -1,0 +1,5 @@
+---
+# This file is used in dobu_test.go#TestListOutputWithNoDockerfileInDirectory()
+# test and the point is to NOT have a Dockerfile in this folder.
+# Don't even need any data in here, since the "look for dockerfile" check happens
+# before we read any content. And that logic should stay that way!
