@@ -93,7 +93,7 @@ All you need to do is to add a `dobu.yml` file next to your Dockerfiles in your 
 # relative path to the parent Dockerfile folder
 parent: ../
 # the tag to use when executing "docker build -t dockertag path"
-dockertag: orby/app1-tomcat:8.0.18
+dockertag:company/app1-tomcat:8.0.18
 ```
 *You can have a look at the [test](test/) folder to see all the files.*
 
@@ -113,6 +113,17 @@ git clone git@github.com:username/docker-builder.git
 Execute Dobu from source
 ```
 go run $GOPATH/src/github.com/username/docker-builder/dobu/dobu.go
+```
+
+List build chain in test/ directory
+```
+go run $GOPATH/src/github.com/username/docker-builder/dobu/dobu.go \
+list -w $GOPATH/src/github.com/username/docker-builder/test/app1-images/frontend/
+```
+
+Execute tests
+```
+go test github.com/username/docker-builder/...
 ```
 
 Install binary
