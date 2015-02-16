@@ -22,7 +22,6 @@ func DockerList(cmd Cmd) (out string) {
 
 	fmt.Errorf("%s", list)
 
-
 	if list != nil && list.Len() > 0 {
 		out = "These images will be built:\n"
 		fmt.Print(out)
